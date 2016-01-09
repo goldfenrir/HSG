@@ -3,4 +3,12 @@
 
     <string name="hello_world">Hello w!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_main_screen">Map</string>
+    <string name="title_activity_request">RequestActivity</string>
+    <string-array name="request_date">
+        <item>Today</item>
+        <item>Tomorrow</item>
+        <item>Today or Tomorrow</item>
+    </string-array>
+    <string name="title_activity_offer">OfferActivity</string>
 </resources>
