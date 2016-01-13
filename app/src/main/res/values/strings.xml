@@ -11,4 +11,15 @@
         <item>Today or Tomorrow</item>
     </string-array>
     <string name="title_activity_offer">OfferActivity</string>
+    <string name="title_activity_register">Register</string>
+    <string name="title_activity_activity_login">activityLogin</string>
+    <string name="title_activity_login">Login</string>
+
+
+    //Login Activity
+    <string name="Username">Username</string>
+    <string name="Password">Password</string>
+    <string name="title_activity_profile">Profile</string>
+    <string name="title_activity_preselect">Preselect</string>
+    <string name="title_activity_select">Select</string>
 </resources>
