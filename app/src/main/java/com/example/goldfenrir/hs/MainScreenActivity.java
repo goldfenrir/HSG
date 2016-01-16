@@ -1,5 +1,6 @@
 package com.example.goldfenrir.hs;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -7,10 +8,19 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -25,16 +35,19 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-
-
-public class MainScreenActivity extends FragmentActivity implements
+public class MainScreenActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener,
+        NavigationDrawerFragment.NavigationDrawerCallbacks{
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+
+    //Menu variables
+    private CharSequence mTitle;
+    private NavigationDrawerFragment mNavigationDrawerFragment;
 
     private static final LatLng ORIGEN = new LatLng(-12.06955, -77.07978);
     private static final LatLng DESTINO = new LatLng(-12.07876, -77.06554);
@@ -50,6 +63,17 @@ public class MainScreenActivity extends FragmentActivity implements
 
         setContentView(R.layout.activity_main_screen);
 
+
+        //Menu initialization
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mTitle = getTitle();
+
+        // Set up the drawer.
+        mNavigationDrawerFragment.setUp(
+                R.id.navigation_drawer,
+                (DrawerLayout) findViewById(R.id.drawer_layout));
+
         Button btnRequest = (Button) findViewById(R.id.btnRequest);
         btnRequest.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,7 +82,6 @@ public class MainScreenActivity extends FragmentActivity implements
                 startActivity(intent);
             }
         });
-
 
         //if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
 //        if (ActivityCompat.checkSelfPermission(this, "android.permission.ACCESS_FINE_LOCATION")
@@ -86,10 +109,9 @@ public class MainScreenActivity extends FragmentActivity implements
 //        }
 
         setUpMapIfNeeded();
-
-
-
     }
+
+
 
     @Override
     protected void onResume() {
@@ -148,11 +170,9 @@ public class MainScreenActivity extends FragmentActivity implements
         mMap.animateCamera(CameraUpdateFactory.zoomTo(14));
         MarkerOptions marker = new MarkerOptions();
 
-
         //marker.icon(BitmapDescriptorFactory.fromPath("C:/Users/Alexis/Dropbox/PUCP/2015-2/Programacion en Dispositivos Moviles/EX2/GoogleMapsTest/doge.png"));
         //mMap.addMarker(marker.position(ORIGEN).title("PUKE").snippet("Consider yourself located"));
         //mMap.addMarker(marker.position(DESTINO).title("SAN ISIDRO").snippet("Consider yourself located"));
-
 
         mMap.addMarker(new MarkerOptions()
                 .position(DESTINO)
@@ -189,12 +209,7 @@ public class MainScreenActivity extends FragmentActivity implements
                     }
                 });
 
-
-
-
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ORIGEN, 14));
-
-
 
     }
 
@@ -271,5 +286,125 @@ public class MainScreenActivity extends FragmentActivity implements
     @Override
     public void onLocationChanged(Location location) {
         handleNewLocation(location);
+    }
+
+    //Menu functions
+
+    @Override
+    public void onNavigationDrawerItemSelected(int position) {
+        // update the main content by replacing fragments
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                .commit();
+    }
+
+    public void onSectionAttached(int number) {
+        switch (number) {
+            case 1:
+                mTitle = getString(R.string.title_section1);
+                break;
+            case 2:
+                mTitle = getString(R.string.title_section2);
+                break;
+            case 3:
+                mTitle = getString(R.string.title_section3);
+                break;
+            case 4:
+                mTitle = getString(R.string.title_section4);
+                break;
+            case 5:
+                mTitle = getString(R.string.title_section5);
+                break;
+            case 6:
+                mTitle = getString(R.string.title_section6);
+                break;
+            case 7:
+                mTitle = getString(R.string.title_section7);
+                break;
+            case 8:
+                mTitle = getString(R.string.title_section8);
+                break;
+            case 9:
+                mTitle = getString(R.string.title_section9);
+                break;
+        }
+    }
+
+
+    public void restoreActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setTitle(mTitle);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (!mNavigationDrawerFragment.isDrawerOpen()) {
+            // Only show items in the action bar relevant to this screen
+            // if the drawer is not showing. Otherwise, let the drawer
+            // decide what to show in the action bar.
+            getMenuInflater().inflate(R.menu.menu_main, menu);
+            restoreActionBar();
+            return true;
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PlaceholderFragment extends Fragment {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
+        private static final String ARG_SECTION_NUMBER = "section_number";
+
+        /**
+         * Returns a new instance of this fragment for the given section
+         * number.
+         */
+        public static PlaceholderFragment newInstance(int sectionNumber) {
+            PlaceholderFragment fragment = new PlaceholderFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        public PlaceholderFragment() {
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_menu, container, false);
+            return rootView;
+        }
+
+        @Override
+        public void onAttach(Activity activity) {
+            super.onAttach(activity);
+            ((MainScreenActivity) activity).onSectionAttached(
+                    getArguments().getInt(ARG_SECTION_NUMBER));
+        }
     }
 }
