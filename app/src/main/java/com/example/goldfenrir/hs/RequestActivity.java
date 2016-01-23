@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
 public class RequestActivity extends AppCompatActivity implements
         NavigationDrawerFragment.NavigationDrawerCallbacks{
@@ -46,6 +47,17 @@ public class RequestActivity extends AppCompatActivity implements
         btnPublish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                EditText editTitle =  (EditText) findViewById(R.id.txtTitle);
+                String title = editTitle.getText().toString();
+
+                EditText editDescription =  (EditText) findViewById(R.id.txtDescription);
+                String description = editDescription.getText().toString();
+
+                EditText editPrice =  (EditText) findViewById(R.id.txtPrice);
+                Double price = Double.parseDouble(editPrice.getText().toString());
+
+
                 AlertDialog ad = new AlertDialog.Builder(context).create();
                 ad.setCancelable(false); // This blocks the 'BACK' button
                 ad.setMessage("Service published successfully");

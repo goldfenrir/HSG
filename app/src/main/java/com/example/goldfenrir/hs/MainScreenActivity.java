@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.AsyncTask;
+import android.os.StrictMode;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -34,6 +36,23 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class MainScreenActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
@@ -63,6 +82,8 @@ public class MainScreenActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_main_screen);
 
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
         //Menu initialization
         mNavigationDrawerFragment = (NavigationDrawerFragment)
@@ -159,6 +180,8 @@ public class MainScreenActivity extends AppCompatActivity implements
      * <p/>
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
+
+
     private void setUpMap() {
         mMap.setMyLocationEnabled(true);
 
@@ -174,7 +197,88 @@ public class MainScreenActivity extends AppCompatActivity implements
         //mMap.addMarker(marker.position(ORIGEN).title("PUKE").snippet("Consider yourself located"));
         //mMap.addMarker(marker.position(DESTINO).title("SAN ISIDRO").snippet("Consider yourself located"));
 
-        mMap.addMarker(new MarkerOptions()
+
+        /*Thread thread = new Thread(new Runnable(){
+            @Override
+            public void run() {
+                try {
+                    String url = "http://192.168.0.5:8080/services/";
+                    HttpURLConnection con;
+                    InputStream is;
+
+                    List<Service> services = new ArrayList<>();
+
+                    try {
+                        con = (HttpURLConnection) (new URL(url)).openConnection();
+                        con.setRequestMethod("GET");
+                        con.setDoInput(true);
+                        con.connect();
+
+                        StringBuffer sb = new StringBuffer();
+                        is = con.getInputStream();
+                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+
+                        String linea;
+
+                        while ((linea = br.readLine()) != null) {
+                            sb.append(linea);
+                        }
+                        is.close();
+                        con.disconnect();
+
+                        JSONArray jsonArray = new JSONArray(sb.toString());
+
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject json = jsonArray.getJSONObject(i);
+                            int id = json.getInt("id");
+                            String title = json.getString("title");
+                            String description = json.getString("description");
+                            Double price = json.getDouble("price");
+                            Double latitude = json.getDouble("latitude");
+                            Double longitude = json.getDouble("longitude");
+
+                            Service service = new Service(id, title, description, price, latitude, longitude);
+                            services.add(service);
+                        }
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    //private static final LatLng ORIGEN = new LatLng(-12.06955, -77.07978);
+
+                    for (int i=0;i<services.size();i++){
+                        mMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(services.get(i).latitude, services.get(i).longitude))
+                                .title(services.get(i).title)
+                                .snippet("Consider yourself located"));
+                        //.icon(BitmapDescriptorFactory.fromResource(R.drawable.pin))
+                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+                            @Override
+                            public boolean onMarkerClick(Marker arg0) {
+                                //if (arg0.getTitle().equals("SAN ISIDRO")) { // if marker source is clicked
+                                Intent intent = new Intent(context, OfferActivity.class);
+                                startActivity(intent);
+                                //}
+                                return true;
+                            }
+                        });
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();*/
+
+
+
+
+        /*mMap.addMarker(new MarkerOptions()
                 .position(DESTINO)
                 .title("SAN ISIDRO")
                 .snippet("Consider yourself located"));
@@ -207,11 +311,44 @@ public class MainScreenActivity extends AppCompatActivity implements
                         //}
                         return true;
                     }
-                });
+                });*/
+
+        Button btnRequest = (Button) findViewById(R.id.btnRefresh);
+        btnRequest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Service> services = ServiceController.Refresh();
+                drawMap(mMap, services);
+            }
+        });
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ORIGEN, 14));
 
     }
+
+
+
+    public void drawMap(GoogleMap mMap, List<Service> services){
+        for (int i=0;i<services.size();i++){
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(services.get(i).latitude, services.get(i).longitude))
+                    .title(services.get(i).title)
+                    .snippet("Consider yourself located"));
+            //.icon(BitmapDescriptorFactory.fromResource(R.drawable.pin))
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+                @Override
+                public boolean onMarkerClick(Marker arg0) {
+                    //if (arg0.getTitle().equals("SAN ISIDRO")) { // if marker source is clicked
+                    Intent intent = new Intent(context, OfferActivity.class);
+                    startActivity(intent);
+                    //}
+                    return true;
+                }
+            });
+        }
+    }
+
 
     private void handleNewLocation(Location location) {
 //        Log.d(TAG, location.toString());
