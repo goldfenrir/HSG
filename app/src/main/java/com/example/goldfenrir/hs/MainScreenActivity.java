@@ -3,6 +3,7 @@ package com.example.goldfenrir.hs;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -37,22 +38,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import com.microsoft.windowsazure.mobileservices.*;
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 
 public class MainScreenActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
@@ -76,6 +68,10 @@ public class MainScreenActivity extends AppCompatActivity implements
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     final Context context = this;
 
+    private MobileServiceClient mClient;
+
+    public List<HandMeService> services = new ArrayList<HandMeService>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +80,18 @@ public class MainScreenActivity extends AppCompatActivity implements
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+
+        try {
+            mClient = new MobileServiceClient(
+                    "https://hsg.azure-mobile.net/",
+                    "PWDIdawYPyMwyLMOSNIIXggQZTdBba54",
+                    this
+            );
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        //mClient.getTable(HandMeService.class).select();
 
         //Menu initialization
         mNavigationDrawerFragment = (NavigationDrawerFragment)
@@ -103,6 +111,8 @@ public class MainScreenActivity extends AppCompatActivity implements
                 startActivity(intent);
             }
         });
+
+
 
         //if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
 //        if (ActivityCompat.checkSelfPermission(this, "android.permission.ACCESS_FINE_LOCATION")
@@ -198,85 +208,6 @@ public class MainScreenActivity extends AppCompatActivity implements
         //mMap.addMarker(marker.position(DESTINO).title("SAN ISIDRO").snippet("Consider yourself located"));
 
 
-        /*Thread thread = new Thread(new Runnable(){
-            @Override
-            public void run() {
-                try {
-                    String url = "http://192.168.0.5:8080/services/";
-                    HttpURLConnection con;
-                    InputStream is;
-
-                    List<Service> services = new ArrayList<>();
-
-                    try {
-                        con = (HttpURLConnection) (new URL(url)).openConnection();
-                        con.setRequestMethod("GET");
-                        con.setDoInput(true);
-                        con.connect();
-
-                        StringBuffer sb = new StringBuffer();
-                        is = con.getInputStream();
-                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-
-                        String linea;
-
-                        while ((linea = br.readLine()) != null) {
-                            sb.append(linea);
-                        }
-                        is.close();
-                        con.disconnect();
-
-                        JSONArray jsonArray = new JSONArray(sb.toString());
-
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject json = jsonArray.getJSONObject(i);
-                            int id = json.getInt("id");
-                            String title = json.getString("title");
-                            String description = json.getString("description");
-                            Double price = json.getDouble("price");
-                            Double latitude = json.getDouble("latitude");
-                            Double longitude = json.getDouble("longitude");
-
-                            Service service = new Service(id, title, description, price, latitude, longitude);
-                            services.add(service);
-                        }
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    //private static final LatLng ORIGEN = new LatLng(-12.06955, -77.07978);
-
-                    for (int i=0;i<services.size();i++){
-                        mMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(services.get(i).latitude, services.get(i).longitude))
-                                .title(services.get(i).title)
-                                .snippet("Consider yourself located"));
-                        //.icon(BitmapDescriptorFactory.fromResource(R.drawable.pin))
-                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-
-                            @Override
-                            public boolean onMarkerClick(Marker arg0) {
-                                //if (arg0.getTitle().equals("SAN ISIDRO")) { // if marker source is clicked
-                                Intent intent = new Intent(context, OfferActivity.class);
-                                startActivity(intent);
-                                //}
-                                return true;
-                            }
-                        });
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        thread.start();*/
-
-
-
 
         /*mMap.addMarker(new MarkerOptions()
                 .position(DESTINO)
@@ -317,30 +248,127 @@ public class MainScreenActivity extends AppCompatActivity implements
         btnRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Service> services = ServiceController.Refresh();
+
+                new AsyncTask<Void, Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        try {
+                            MobileServiceTable<HandMeService> serviceTable = mClient.getTable(HandMeService.class);
+                            MobileServiceList<HandMeService> result = serviceTable.execute().get();
+                            for (HandMeService item : result) {
+                                services.add(item);
+                            }
+                            System.out.println("Tamaño de la lista: "+services.size());
+                            System.out.println("Titulo 1: "+services.get(0)._title);
+
+
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        } catch (MobileServiceException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+                }.execute();
+
+
+
+            }
+        });
+
+        Button btnShow = (Button) findViewById(R.id.btnShow);
+        btnShow.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
                 drawMap(mMap, services);
             }
         });
+
+
+        //MapThread mapThread = new MapThread();
+        //mapThread.start();
+
+
+        /*new Thread(new Runnable() {
+
+            public void run(){
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while(!Thread.currentThread().isInterrupted()) {
+                            try{
+                                try {
+
+                                    MobileServiceTable<HandMeService> serviceTable = mClient.getTable(HandMeService.class);
+                                    MobileServiceList<HandMeService> result = serviceTable.execute().get();
+                                    for (HandMeService item : result) {
+                                        services.add(item);
+                                    }
+                                    System.out.println("Tamaño de la lista: "+services.size());
+                                    System.out.println("Titulo 1: "+services.get(0)._title);
+
+
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                } catch (ExecutionException e) {
+                                    e.printStackTrace();
+                                } catch (MobileServiceException e) {
+                                    e.printStackTrace();
+                                }
+
+                                drawMap(mMap, services);
+
+
+                                Thread.sleep(10000);
+                            }catch (InterruptedException e){
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+
+            }
+        }).start();*/
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ORIGEN, 14));
 
     }
 
+    /*public class MapThread extends Thread{
+        public void run(){
+            while(!Thread.currentThread().isInterrupted()) {
+                //List<Service> services = ServiceController.Refresh();
+                drawMap(mMap, services);
+                try{
+                    Thread.sleep(1000);
+                }catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    }*/
 
 
-    public void drawMap(GoogleMap mMap, List<Service> services){
+    public synchronized void drawMap(GoogleMap mMap, final List<HandMeService> services){
         for (int i=0;i<services.size();i++){
             mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(services.get(i).latitude, services.get(i).longitude))
-                    .title(services.get(i).title)
+                    .position(new LatLng(services.get(i)._latitude, services.get(i)._longitude))
+                    .title(services.get(i)._title)
                     .snippet("Consider yourself located"));
             //.icon(BitmapDescriptorFactory.fromResource(R.drawable.pin))
+            final int finalI = i;
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 
                 @Override
                 public boolean onMarkerClick(Marker arg0) {
                     //if (arg0.getTitle().equals("SAN ISIDRO")) { // if marker source is clicked
                     Intent intent = new Intent(context, OfferActivity.class);
+                    intent.putExtra("ServiceId",services.get(finalI).id);
                     startActivity(intent);
                     //}
                     return true;
