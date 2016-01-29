@@ -17,6 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 public class OfferActivity extends AppCompatActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -25,6 +27,7 @@ public class OfferActivity extends AppCompatActivity
 
     private CharSequence mTitle;
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    private HandMeService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,12 @@ public class OfferActivity extends AppCompatActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        Bundle b = getIntent().getExtras();
+        //
+        //findById
+        service = ServiceController.ServiceById(1); //new Service(1,"Limpiar","LimpiarCasa",20.0,0.0,0.0);
+        fillService(service);
 
         Button btnDo = (Button) findViewById(R.id.btnDo);
         btnDo.setOnClickListener(new View.OnClickListener() {
@@ -59,6 +68,15 @@ public class OfferActivity extends AppCompatActivity
                 ad.show();
             }
         });
+    }
+
+    public void fillService(HandMeService service){
+        //TextView editTitle =  (TextView) findViewById(R.id.txtOfferTitle);
+        //editTitle.setText(service.title);
+        TextView editDecription =  (TextView) findViewById(R.id.txtOfferDescription);
+        editDecription.setText(service._description);
+        TextView editPrice = (TextView) findViewById(R.id.txtOfferPrice);
+        editPrice.setText(service._price.toString());
     }
 
     @Override

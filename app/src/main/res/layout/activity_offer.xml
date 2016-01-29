@@ -30,9 +30,9 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="Credit card allowed"
-                android:id="@+id/textView9"
+                android:id="@+id/txtOfferCreditCardAllowed"
                 android:layout_marginBottom="102dp"
-                android:layout_above="@+id/textView11"
+                android:layout_above="@+id/txtOfferPrice"
                 android:layout_alignRight="@+id/btnDo"
                 android:layout_alignEnd="@+id/btnDo" />
 
@@ -41,8 +41,8 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="Necesito a alguien que limpie mi casa"
-                android:id="@+id/textView10"
-                android:layout_alignBottom="@+id/textView9"
+                android:id="@+id/txtOfferDescription"
+                android:layout_alignBottom="@+id/txtOfferCreditCardAllowed"
                 android:layout_centerHorizontal="true"
                 android:layout_marginBottom="48dp" />
 
@@ -51,10 +51,10 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="Hoy o mañana"
-                android:id="@+id/textView8"
-                android:layout_below="@+id/textView10"
-                android:layout_toRightOf="@+id/textView9"
-                android:layout_toEndOf="@+id/textView9"
+                android:id="@+id/txtOfferDate"
+                android:layout_below="@+id/txtOfferDescription"
+                android:layout_toRightOf="@+id/txtOfferCreditCardAllowed"
+                android:layout_toEndOf="@+id/txtOfferCreditCardAllowed"
                 android:layout_marginTop="41dp" />
 
             <TextView
@@ -62,10 +62,10 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="20, 000"
-                android:id="@+id/textView11"
+                android:id="@+id/txtOfferPrice"
                 android:layout_centerVertical="true"
-                android:layout_alignLeft="@+id/textView8"
-                android:layout_alignStart="@+id/textView8" />
+                android:layout_alignLeft="@+id/txtOfferDate"
+                android:layout_alignStart="@+id/txtOfferDate" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -74,8 +74,8 @@
                 android:text="Jaime PC"
                 android:id="@+id/textView12"
                 android:layout_above="@+id/btnDo"
-                android:layout_toLeftOf="@+id/textView9"
-                android:layout_toStartOf="@+id/textView9"
+                android:layout_toLeftOf="@+id/txtOfferCreditCardAllowed"
+                android:layout_toStartOf="@+id/txtOfferCreditCardAllowed"
                 android:layout_marginBottom="64dp" />
 
             <RatingBar
@@ -97,10 +97,10 @@
                 android:src="@mipmap/ic_launcher"
                 android:layout_alignLeft="@+id/textView12"
                 android:layout_alignStart="@+id/textView12"
-                android:layout_alignBottom="@+id/textView11"
+                android:layout_alignBottom="@+id/txtOfferPrice"
                 android:layout_toLeftOf="@+id/btnDo"
                 android:layout_toStartOf="@+id/btnDo"
-                android:layout_alignTop="@+id/textView8" />
+                android:layout_alignTop="@+id/txtOfferDate" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -108,7 +108,7 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="When:"
                 android:id="@+id/textView13"
-                android:layout_alignTop="@+id/textView8"
+                android:layout_alignTop="@+id/txtOfferDate"
                 android:layout_centerHorizontal="true" />
 
             <TextView
@@ -117,7 +117,7 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="Price:"
                 android:id="@+id/textView14"
-                android:layout_below="@+id/textView9"
+                android:layout_below="@+id/txtOfferCreditCardAllowed"
                 android:layout_alignRight="@+id/textView13"
                 android:layout_alignEnd="@+id/textView13" />
         </RelativeLayout>

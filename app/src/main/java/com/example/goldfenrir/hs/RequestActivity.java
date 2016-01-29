@@ -27,6 +27,8 @@ public class RequestActivity extends AppCompatActivity implements
     //Menu variables
     private CharSequence mTitle;
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    private HandMeUser user = UserController.UserById(1);
+            //new User("Alexis","Leon","alexis2413","alexis","alexis.leons@pucp.pe","Peru",)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +53,14 @@ public class RequestActivity extends AppCompatActivity implements
                 EditText editTitle =  (EditText) findViewById(R.id.txtTitle);
                 String title = editTitle.getText().toString();
 
+
                 EditText editDescription =  (EditText) findViewById(R.id.txtDescription);
                 String description = editDescription.getText().toString();
 
                 EditText editPrice =  (EditText) findViewById(R.id.txtPrice);
                 Double price = Double.parseDouble(editPrice.getText().toString());
 
+                ServiceController.Request(user.id,title,description,price,user._latitude,user._longitude);
 
                 AlertDialog ad = new AlertDialog.Builder(context).create();
                 ad.setCancelable(false); // This blocks the 'BACK' button
@@ -69,12 +73,12 @@ public class RequestActivity extends AppCompatActivity implements
                 });
                 ad.show();
 
-
                 Intent intent = new Intent(context, MainScreenActivity.class);
                 startActivity(intent);
             }
         });
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
